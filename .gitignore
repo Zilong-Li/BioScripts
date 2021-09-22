@@ -1,6 +1,12 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 
-
 # C extensions
 *.so
+
+# emacs settings 
+auto/
+frag-master.tex
+
+# mac os
+*.DS_Store

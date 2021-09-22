@@ -1,0 +1,17 @@
+#+TITLE: Cool Bioinformatics Scripts
+
+* [[qqplot.py]]
+
+- read tons of millions p values from stdin
+
+#+begin_src shell
+cat pval.txt | qqplot.py -out test -title "QQ plot on the fly"
+#+end_src
+
+- use qqplot.py in your script
+
+#+begin_src python
+from qqplot import qqplot
+qqplot(x=pvals, figname="test.png")
+#+end_src
+
