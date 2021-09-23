@@ -18,6 +18,8 @@ p = np.random.random(1000000)
 qqplot(x=p, figname="test.png")
 #+end_src
 
+[[file:image/qqplot.png][click to see the output png]]
+
 * [[file:fixref.py][fixref]]
 
 Before running =bcftools merge=, you maybe need to fix the ref and alt and corresponding genotypes, otherwise =bcftools= will surprise you.
@@ -36,4 +38,4 @@ When you run imputation analysis with =BEAGLE= (or other imputation tools), you 
 usage: calc_imputed_gt_discord.py [-h] [-chr STRING] VCF1 VCF2 OUT
 #+end_src
 
-[[file:image/calc_imputed_gt_discord.png][a output png]]
+[[file:image/calc_imputed_gt_discord.png][click to see the output png]]
