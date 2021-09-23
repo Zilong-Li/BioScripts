@@ -25,3 +25,15 @@ Before running =bcftools merge=, you maybe need to fix the ref and alt and corre
 #+begin_src shell
 usage: fixref.py [-h] REF_VCF IN_VCF OUT_VCF
 #+end_src
+
+* [[file:calc_imputed_gt_discord.py][calculate genotype discordance]]
+
+When you run imputation analysis with =BEAGLE= (or other imputation tools), you may want to know the distribution of genotype discordance between the original vcf and imputed vcf.
+
+*warning* : Before running the script, you must be sure the two vcfs have the exact same sites and samples for each chromosome.
+
+#+begin_src shell
+usage: calc_imputed_gt_discord.py [-h] [-chr STRING] VCF1 VCF2 OUT
+#+end_src
+
+[[file:image/calc_imputed_gt_discord.png][a output png]]
