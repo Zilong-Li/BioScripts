@@ -1,17 +1,27 @@
 #+TITLE: Cool Bioinformatics Scripts
 
-* [[qqplot.py]]
+* [[file:qqplot.py][qqplot]]
+You can use this script in two ways
 
 - read tons of millions p values from stdin
 
 #+begin_src shell
-cat pval.txt | qqplot.py -out test -title "QQ plot on the fly"
+zcat pval.txt.gz | qqplot.py -out test -title "QQ plot on the fly"
 #+end_src
 
 - use qqplot.py in your script
 
 #+begin_src python
+import numpy as np
 from qqplot import qqplot
-qqplot(x=pvals, figname="test.png")
+p = np.random.random(1000000)
+qqplot(x=p, figname="test.png")
 #+end_src
 
+* [[file:fixref.py][fixref]]
+
+Before running =bcftools merge=, you maybe need to fix the ref and alt and corresponding genotypes, otherwise =bcftools= will surprise you.
+
+#+begin_src shell
+usage: fixref.py [-h] REF_VCF IN_VCF OUT_VCF
+#+end_src

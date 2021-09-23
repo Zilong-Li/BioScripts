@@ -106,6 +106,10 @@ def qqplot(x=None, figname=None, cutoff=1e-4, bins=1000, ax=None,
         o = -np.log10(sorted(x))
     ax = _plot(e, o, ax=ax, color=color, ablinecolor=ablinecolor,
                alpha=alpha, **kwargs)
+    if xlabel is None:
+        xlabel = r"Expected $-log_{10}{(P)}$"
+    if ylabel is None:
+        ylabel = r"Observed $-log_{10}{(P)}$"
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -139,8 +143,6 @@ def main():
            cutoff=args.cutoff,
            bins=args.bins,
            title=args.title,
-           xlabel=r"Expected $-log_{10}{(P)}$",
-           ylabel=r"Observed $-log_{10}{(P)}$",
            ax=ax)
 
 
