@@ -5,6 +5,8 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
+from time import localtime, strftime
+
 
 def _plot(x, y, ax=None, color=None, ablinecolor="r", alpha=0.8, **kwargs):
     """
@@ -13,12 +15,10 @@ def _plot(x, y, ax=None, color=None, ablinecolor="r", alpha=0.8, **kwargs):
     x, y : array-like, x is the expected, y is the observed
 
     ax : matplotlib axis, optional
-        Axis to plot on, otherwise uses current axis.
 
-    color : matplotlib color, optional The dots color in the plot
+    color : the dots color in the plot, optional 
 
-    kwargs : key, value pairings
-        Other keyword arguments are passed to ``plt.scatter()``
+    kwargs : key, value pairings passed to ``plt.scatter()``
 
     Returns
     -------
@@ -56,10 +56,15 @@ def _group_bins(cutoff, bins):
     sigp = []
     N = 0
     c = -np.log10(cutoff)
+    sys.stdout.write(strftime("%a, %d %b %Y %H:%M:%S", localtime())
+                     + f" : start to process the input!\n")
     try:
         for line in sys.stdin:
             N += 1
-            p = -np.log10(float(line.rstrip()))
+            if N % 1000000 == 0:
+                sys.stdout.write(strftime("%a, %d %b %Y %H:%M:%S", localtime())
+                                 + f" : reaching the {N}-th line.\n")
+            p = -np.log10(float(line))
             if p > c:
                 sigp.append(p)
             else:
@@ -71,6 +76,8 @@ def _group_bins(cutoff, bins):
     except KeyboardInterrupt:
         pass
 
+    sys.stdout.write(strftime("%a, %d %b %Y %H:%M:%S", localtime())
+                     + f" : reached the end! the total number of lines is {N}!\n")
     size = 0
     obs = []
     exp = []
@@ -95,7 +102,7 @@ def qqplot(x=None, figname=None, cutoff=1e-4, bins=1000, ax=None,
            dpi=300, xlabel=None, ylabel=None, **kwargs):
 
     if x is None:
-        # read data from pipe
+        # read data from stdin
         o, e = _group_bins(cutoff, bins)
     else:
         if not all(map(float, x)):
