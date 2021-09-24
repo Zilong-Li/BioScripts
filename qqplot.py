@@ -78,13 +78,9 @@ def _group_bins(cutoff, bins):
 
     sys.stdout.write(strftime("%a, %d %b %Y %H:%M:%S", localtime())
                      + f" : reached the end! the total number of lines is {N}!\n")
-    size = 0
-    obs = []
-    exp = []
-    for p in sorted(sigp, reverse=True):
-        obs.append(p)
-        exp.append(-np.log10((size + 1 - 0.5) / N))
-        size += 1
+    size = len(sigp)
+    obs = sorted(sigp, reverse=True)
+    exp = [-np.log10((i + 1 - 0.5) / N) for i in np.arange(size)]
 
     for bi in allbins:
         if bi[0] != -1:
@@ -133,10 +129,10 @@ def main():
         description="QQ plot on the fly! only read data from the pipe!")
     parser.add_argument("-cutoff", metavar="FLOAT",
                         nargs='?', default=1e-4, type=float,
-                        help="threshold to use[1e-4].")
+                        help="pval bigger than this cutoff will be grouped into bins.[1e-4]")
     parser.add_argument("-bins", metavar="INT",
                         nargs='?', default=1000, type=int,
-                        help="the number of bins to use[1000].")
+                        help="the number of bins to use.[1000]")
     parser.add_argument("-out", metavar="FILE",
                         help="prefix of output files")
     parser.add_argument("-title", metavar="STRING",

@@ -3,11 +3,16 @@
 * [[file:qqplot.py][qqplot]]
 You can use this script in two ways
 
-- read tons of millions p values from stdin
+- read tons of millions of P values from stdin
 
 #+begin_src shell
+# python 
 zcat pval.txt.gz | qqplot.py -out test -title "QQ plot on the fly"
+# julia
+zcat pval.txt.gz | qqplot.jl --out test --title "QQ plot on the fly"
 #+end_src
+
+*warning* : If you have 100 billion P values to process you should definitely use [[qqplot.jl]] instead of [[file:qqplot.py][qqplot.py]]. The hourly processed lines of julia version is 3 billion while python is only 700 million on my server.
 
 - use qqplot.py in your script
 
