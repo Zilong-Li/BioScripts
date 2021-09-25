@@ -93,7 +93,7 @@ def _group_bins(cutoff, bins):
     return np.array(obs), np.array(exp)
 
 
-def qqplot(x=None, figname=None, cutoff=1e-4, bins=1000, ax=None,
+def qqplot(figname=None, x=None, y=None, cutoff=1e-4, bins=1000, ax=None,
            title=None, color=None, alpha=0.8, ablinecolor='r',
            dpi=300, xlabel=None, ylabel=None, **kwargs):
 
@@ -101,12 +101,13 @@ def qqplot(x=None, figname=None, cutoff=1e-4, bins=1000, ax=None,
         # read data from stdin
         o, e = _group_bins(cutoff, bins)
     else:
-        if not all(map(float, x)):
-            raise ValueError("`x` must be numeric")
         n = len(x)
         a = 0.5
-        e = -np.log10((np.arange(n, dtype=float) + 1 - a) / (n + 1 - 2 * a))
         o = -np.log10(sorted(x))
+        if y is None:
+            e = -np.log10((np.arange(n, dtype=float) + 1 - a) / (n + 1 - 2 * a))
+        else:
+            e = y
     ax = _plot(e, o, ax=ax, color=color, ablinecolor=ablinecolor,
                alpha=alpha, **kwargs)
     if xlabel is None:
