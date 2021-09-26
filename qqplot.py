@@ -101,12 +101,13 @@ def qqplot(figname=None, x=None, y=None, cutoff=1e-4, bins=1000, ax=None,
         # read data from stdin
         o, e = _group_bins(cutoff, bins)
     else:
-        n = len(x)
-        a = 0.5
-        o = -np.log10(sorted(x))
         if y is None:
+            n = len(x)
+            a = 0.5
+            o = -np.log10(sorted(x))
             e = -np.log10((np.arange(n, dtype=float) + 1 - a) / (n + 1 - 2 * a))
         else:
+            o = x
             e = y
     ax = _plot(e, o, ax=ax, color=color, ablinecolor=ablinecolor,
                alpha=alpha, **kwargs)

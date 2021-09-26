@@ -46,22 +46,22 @@ int main(int argc, char *argv[])
 
     int64_t size = sigp.size();
     sort( sigp.begin(), sigp.end(), std::greater<double>() );
-    vector<double> exp;
+    vector<double> expp;
     for (i = 0; i < size; ++i) {
-        exp.push_back(-log10( (double)(i + 1 - 0.5) / N ));
+        expp.push_back(-log10( (double)(i + 1 - 0.5) / N ));
     }
 
     for (i = 0; i < bins; ++i){
         if (allbins[i][0] != -1){
             sigp.push_back(allbins[i][0]);
-            exp.push_back(-log10( (double)(allbins[i][1] + size - 0.5) / N) );
+            expp.push_back(-log10( (double)(allbins[i][1] + size - 0.5) / N) );
             size += allbins[i][1];
         }
     }
 
     cout.precision(17);
     for (i = 0; i < sigp.size(); ++i){
-        cout << sigp[i] << "," << exp[i] << "\n";
+        cout << sigp[i] << "," << expp[i] << "\n";
     }
     
     cerr << timestamp() << "program finished.\n";

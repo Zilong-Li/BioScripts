@@ -28,7 +28,7 @@ function qqfly(out::String, title::String="", cutoff::Float64=1e-4, bins::Int=10
 
         p = -log10(parse(Float64, readline(io)))
         if p > c
-            sigp = [sigp; p]
+            append!(sigp, p)
         else
             i = bins - Int(floor(p / c * bins))
             i == 0 ? i = 1 : i
@@ -39,23 +39,23 @@ function qqfly(out::String, title::String="", cutoff::Float64=1e-4, bins::Int=10
     println(Dates.format(now(), "YY-mm-dd:HH:MM:SS  "), "total number of lines is $N.")
 
     size = length(sigp)
-    obs = sort(sigp, rev=true)
-    exp = [-log10((i + 1 - 0.5) / N) for i in 1:size]
+    sort!(sigp, rev=true)
+    expp = [-log10((i - 0.5) / N) for i in 1:size]
     for b in allbins
         if b[1] != -1
-            obs = [obs; b[1]]
-            exp = [exp; -log10((b[2] + size - 0.5) / N)]
+            append!(sigp, b[1])
+            append!(expp, -log10((b[2] + size - 0.5) / N))
             size += b[2]
         end
     end
     # plotting
     gr(size=(1000, 1000))
-    qqplot(exp, obs, xlabel="Expected -log10(P)", ylabel="Observed -log10(P)", markerstrokecolor=:deepskyblue3, linecolor=:red, markercolor=:deepskyblue3, linewidth=3, title=title)
+    qqplot(expp, sigp, xlabel="Expected -log10(P)", ylabel="Observed -log10(P)", markerstrokecolor=:deepskyblue3, linecolor=:red, markercolor=:deepskyblue3, linewidth=3, title=title)
     figname = out * ".png"
     savefig(figname)
     csvname = out * ".csv.gz"
     open(GzipCompressorStream, csvname, "w") do stream
-        writedlm(stream, [obs exp], ',')
+        writedlm(stream, [sigp expp], ',')
     end
     println(Dates.format(now(), "YY-mm-dd:HH:MM:SS  "), "program finished.")
 
