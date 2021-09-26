@@ -1,26 +1,32 @@
 #!/usr/bin/env julia
 
 using ArgParse
-using Printf
 using StatsPlots
 using CodecZlib
 using DelimitedFiles
+using Dates
 
 # disable calling display window
 ENV["GKSwstype"] = "100"
 
-function qqfly(out::String, title::String, cutoff::Float64=1e-4, bins::Int=1000)
+function qqfly(out::String, title::String="", cutoff::Float64=1e-4, bins::Int=1000; cmd=nothing)
+    println(Dates.format(now(), "YY-mm-dd:HH:MM:SS  "), "program started.")
     allbins = [Float64[-1, 0] for i in 1:bins]
     sigp = Float64[]
     N = 0
     c = -log10(cutoff)
-    while !eof(stdin)
+    if cmd == nothing
+        io = stdin
+    else
+        io = open(cmd)
+    end
+    while !eof(io)
         N += 1
-        if N % 1000000 == 0
-            @printf "reaching the %.6e line.\n" N
+        if N % 100000000 == 0
+            println(Dates.format(now(), "YY-mm-dd:HH:MM:SS  "), "reached the $N line.")
         end
-        
-        p = -log10(parse(Float64, readline(stdin)))
+
+        p = -log10(parse(Float64, readline(io)))
         if p > c
             sigp = [sigp; p]
         else
@@ -30,6 +36,7 @@ function qqfly(out::String, title::String, cutoff::Float64=1e-4, bins::Int=1000)
             allbins[i][2] += 1
         end
     end
+    println(Dates.format(now(), "YY-mm-dd:HH:MM:SS  "), "total number of lines is $N.")
 
     size = length(sigp)
     obs = sort(sigp, rev=true)
@@ -50,9 +57,11 @@ function qqfly(out::String, title::String, cutoff::Float64=1e-4, bins::Int=1000)
     open(GzipCompressorStream, csvname, "w") do stream
         writedlm(stream, [obs exp], ',')
     end
+    println(Dates.format(now(), "YY-mm-dd:HH:MM:SS  "), "program finished.")
 
     return nothing
 end
+
 
 function main()
     s = ArgParseSettings()
@@ -62,6 +71,7 @@ function main()
             default = "qqplot-jl"
         "--title"
             help = "title of the plot"
+            default = ""
         "--cutoff"
             help = "pval bigger than this cutoff will be grouped into bins.[1e-4]"
             arg_type = Float64
@@ -82,5 +92,11 @@ function main()
 
 end
 
-main()
-
+# running on terminal with one-liner
+# zcat pval.gz | awk 'NR>1{print $10}'| qqplot.jl --out test --title "QQ plot on the fly"
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
+end
+# the recommanded is running in julia REPL as follows
+# cmd = pipeline(`zcat pval.gz`, `awk 'NR>1{print $10}'`)
+# qqfly("test.out", cmd=cmd)

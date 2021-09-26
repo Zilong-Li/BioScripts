@@ -1,18 +1,27 @@
 #+TITLE: Cool Bioinformatics Scripts
 
 * [[file:qqplot.py][qqplot]]
-You can use this script in two ways
+You can use make a QQ plot in the following ways.
 
-- read tons of millions of P values from stdin
+- one-liner for reading tons of millions of P values from the pipe
 
 #+begin_src shell
 # python 
 zcat pval.txt.gz | qqplot.py -out test -title "QQ plot on the fly"
-# julia
+# julia (recommand to run it in the REPL)
 zcat pval.txt.gz | qqplot.jl --out test --title "QQ plot on the fly"
 #+end_src
 
-*warning* : If you have 100 billion P values to process you should definitely use [[qqplot.jl]] instead of [[file:qqplot.py][qqplot.py]]. The hourly processed lines of julia version is 3 billion while python is only 700 million on my server.
+*warning* : If you have 100 billion P values to process you should definitely use [[qqplot.jl]] instead of [[file:qqplot.py][qqplot.py]]. The hourly processed number of lines of julia version is 5 billion while python is only 700 million on my server.
+
+- running in a julia REPL (recommanded)
+
+#+begin_src julia
+include("qqplot.jl")
+cmd = pipeline(`zcat pval.gz`, `awk 'NR>1{print $10}'`)
+qqfly("test", cmd=cmd)
+#+end_src
+
 
 - use qqplot.py in your script
 
@@ -37,10 +46,11 @@ usage: fixref.py [-h] REF_VCF IN_VCF OUT_VCF
 
 When you run imputation analysis with =BEAGLE= (or other imputation tools), you may want to know the distribution of genotype discordance between the original vcf and imputed vcf.
 
-*warning* : Before running the script, you must be sure the two vcfs have the exact same sites and samples for each chromosome.
-
 #+begin_src shell
 usage: calc_imputed_gt_discord.py [-h] [-chr STRING] VCF1 VCF2 OUT
 #+end_src
+
+*warning* : Before running the script, you must be sure the two vcfs have the exact same sites and samples for each chromosome.
+
 
 [[file:image/calc_imputed_gt_discord.png][click to see the output png]]
