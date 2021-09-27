@@ -61,7 +61,7 @@ def _group_bins(cutoff, bins):
     try:
         for line in sys.stdin:
             N += 1
-            if N % 1000000 == 0:
+            if N % 100000000 == 0:
                 sys.stdout.write(strftime("%a, %d %b %Y %H:%M:%S", localtime())
                                  + f" : reaching the {N}-th line.\n")
             p = -np.log10(float(line))
