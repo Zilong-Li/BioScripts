@@ -59,7 +59,7 @@ function qqfly(out::String, title::String="", cutoff::Float64=1e-4, bins::Int=10
     end
     println(Dates.format(now(), "YY-mm-dd:HH:MM:SS  "), "program finished.")
 
-    return nothing
+    return sigp, expp
 end
 
 

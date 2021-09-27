@@ -19,7 +19,7 @@ zcat pval.txt.gz | qqplot.jl --out test --title "QQ plot on the fly"
 #+begin_src julia
 include("qqplot.jl")
 cmd = pipeline(`zcat pval.gz`, `awk 'NR>1{print $10}'`)
-qqfly("test", cmd=cmd)
+sigp, expp = qqfly("test", cmd=cmd)
 #+end_src
 
 
