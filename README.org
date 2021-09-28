@@ -32,7 +32,7 @@ p = np.random.random(1000000)
 qqplot(x=p, figname="test.png")
 #+end_src
 
-[[file:image/qqplot.png][click to see the output png]]
+[[file:image/qqplot.png]]
 
 * [[file:fixref.py][fixref]]
 
@@ -53,4 +53,4 @@ usage: calc_imputed_gt_discord.py [-h] [-chr STRING] VCF1 VCF2 OUT
 *warning* : Before running the script, you must be sure the two vcfs have the exact same sites and samples for each chromosome.
 
 
-[[file:image/calc_imputed_gt_discord.png][click to see the output png]]
+[[file:image/calc_imputed_gt_discord.png]]
