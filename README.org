@@ -54,3 +54,9 @@ usage: calc_imputed_gt_discord.py [-h] [-chr STRING] VCF1 VCF2 OUT
 
 
 [[file:image/calc_imputed_gt_discord.png]]
+
+* [[file:plot-r2-vs-maf.R][R2 vs MAF plot]]
+
+plot INFO/R2 after imputation by =BEAGLE= etc.
+
+[[file:image/r2-vs-maf.png]]
