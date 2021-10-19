@@ -61,7 +61,7 @@ def run(theChr, theBeaglePhasedFile, theBeagleSitesFile, theOutPrefix):
 def main():
 
     parser = argparse.ArgumentParser(
-        description="calculate the GT discordance rate between two vcfs.")
+        description="convert phased.gz file output by beagle v3.3 to hap/sample file\n")
     parser.add_argument("chr", metavar="STRING",
                         help="chromosome to use")
     parser.add_argument("phased", metavar="phased.gz",

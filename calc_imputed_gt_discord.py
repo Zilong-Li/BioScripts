@@ -16,43 +16,6 @@ def _get_genotype_list(gts):
     return res
 
 
-def _count_discord_each_type(gts1, gts2, dct):
-
-    assert(len(gts1) == len(gts2))
-    out = []
-    for i in range(len(gts1)):
-        if gts1[i] == 0 and gts2[i] == 1:
-            dct["0->1"] += 1
-            out.append("01")
-        elif gts1[i] == 0 and gts2[i] == 2:
-            dct["0->2"] += 1
-            out.append("02")
-        elif gts1[i] == 1 and gts2[i] == 0:
-            dct["1->0"] += 1
-            out.append("10")
-        elif gts1[i] == 1 and gts2[i] == 2:
-            dct["1->2"] += 1
-            out.append("12")
-        elif gts1[i] == 2 and gts2[i] == 0:
-            dct["2->0"] += 1
-            out.append("20")
-        elif gts1[i] == 2 and gts2[i] == 1:
-            dct["2->1"] += 1
-            out.append("21")
-        elif gts1[i] == gts2[i]:
-            dct["equal"] += 1
-            out.append("11")
-        elif gts1[i] == -1 or gts2[i] == -1:
-            dct["missing"] += 1
-            out.append("00")
-        else:
-            sys.stderr.write(
-                f"something wrong when parsing the genotypes!\n{gts1[i]}\t{gts2[i]}")
-            sys.exit(1)
-
-    return out
-
-
 def _count_discord_each_type2(dps, gts1, gts2, dct, dct2):
 
     assert(len(gts1) == len(gts2))
@@ -85,9 +48,13 @@ def _count_discord_each_type2(dps, gts1, gts2, dct, dct2):
         elif gts1[i] == gts2[i]:
             dct["equal"] += 1
             out.append("11")
-        elif gts1[i] == -1 or gts2[i] == -1:
-            dct["missing"] += 1
-            dct2["missing"].append(dps[i][0])
+        elif gts1[i] == -1:
+            dct["missing1"] += 1
+            dct2["missing1"].append(dps[i][0])
+            out.append("00")
+        elif gts2[i] == -1:
+            dct["missing2"] += 1
+            dct2["missing2"].append(dps[i][0])
             out.append("00")
         else:
             sys.stderr.write(
@@ -111,9 +78,9 @@ def calc_beagle_glgt_discord_rate(theInVcf, theOutVcf, theOutPref, chrom=None):
         vo = next(vcfout)
 
     dct = {"0->1": 0, "0->2": 0, "1->0": 0, "1->2": 0,
-           "2->0": 0, "2->1": 0, "equal": 0, "missing": 0}
+           "2->0": 0, "2->1": 0, "equal": 0, "missing1": 0, "missing2": 0}
     dct2 = {"0->1": [], "0->2": [], "1->0": [],
-            "1->2": [], "2->0": [], "2->1": [], "missing": []}
+            "1->2": [], "2->0": [], "2->1": [], "missing1": [], "missing2": []}
     try:
         while True:
             if vi.start == vo.start:
@@ -146,7 +113,7 @@ def calc_beagle_glgt_discord_rate(theInVcf, theOutVcf, theOutPref, chrom=None):
     res.append(sum(res))
     labels.append("TotalDisc")
 
-    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14, 7))
     x = np.arange(len(labels)) + 1
     rects = ax.bar(x, res, label=f"#all samples genotypes({sc})")
     # ax.ticklabel_format(style="plain")
@@ -161,6 +128,11 @@ def calc_beagle_glgt_discord_rate(theInVcf, theOutVcf, theOutPref, chrom=None):
     ax2.set_title('Violine plot of Format/DP')
     ax2.set_xlabel('Genotype Types')
     ax2.set_ylabel('Format/DP')
+    for k, v in dct2.items():
+        if len(v) == 0:
+            dct2[k] = [0]
+        else:
+            pass
     ax2.violinplot(dct2.values())
     # avoid userwarning  FixedLocator
     ax2.set_xticks(np.arange(len(dct2.keys())) + 1)
