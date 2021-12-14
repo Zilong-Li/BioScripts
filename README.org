@@ -27,9 +27,9 @@ sigp, expp = qqfly("test", cmd=cmd)
 
 #+begin_src python
 import numpy as np
-from qqplot import qqplot
+from qqplot import qq
 p = np.random.random(1000000)
-qqplot(x=p, figname="test.png")
+qq(x=p, figname="test.png")
 #+end_src
 
 [[file:image/qqplot.png]]
