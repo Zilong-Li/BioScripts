@@ -63,13 +63,22 @@ runBeagle4()
 runBeagle3() {
     # show verbose log
     set -x
-    # dir for beagle format
-    indir=/home/krishang/projects/DNA/africa1kg/imputation_datasets/giraf2/per_chrom
-    echo "start running beagle3 by chroms"
-    for chrom in {14..1};do
+    VCF=/home/krishang/projects/DNA/africa1kg/imputation_datasets/wildebeest/Wildebeest_wildebeest_variable_sites_nomultiallelics_noindels_maf005.bcf.gz # vcf path
+    OUT=`pwd` # outputdir
+    mkdir -p $OUT/vcf $OUT/imputed
+    echo "start running beagle3 by chr"
+    chrs=$(bcftools index -s $VCF|cut -f1)   # may change chr name patterns to your own
+    for chrom in $chrs;do
     {
+        # convert PL tag to GL in beagle format 
+        indir=$OUT/vcf
+        bname=$indir/`basename $VCF`.$chrom
+        bcftools view -r $chrom -O u $VCF | bcftools +tag2tag -Ov -o ${bname}.vcf -- -r --pl-to-gl && vcftools --vcf ${bname}.vcf --out ${bname} --BEAGLE-GL --chr $chrom;
+
+        # run imputation
+        outdir=$OUT/imputed
         out=$outdir/$chrom
-        input=$indir/$chrom.BEAGLE.GL
+        input=${bname}.BEAGLE.GL
         java -Xss5m -Xmx40g -jar $beagle3 seed=2 like=$input out=$out omitprefix=true
         zcat $out.BEAGLE.GL.gprobs.gz | java -jar /home/zilong/local/bin/gprobs2beagle.jar 0.9 -1 | gzip -c >$out.bgl.gz && \
         zcat $out.BEAGLE.GL.gprobs.gz | awk 'NR>1{split($1,a,":");print $1,a[2],$2,$3}' >$out.bgl.sites && \
@@ -82,15 +91,17 @@ runBeagle3() {
     } &
     done
     wait
+
     echo "all jobs done by chroms"
+
     echo "start concating files"
     out=$outdir/all
-    bcftools concat --threads 20 -Ob -o $out.bcf `for i in {1..14}; do echo $outdir/$i.vcf.gz;done` && bcftools index -f $out.bcf
-    bcftools concat --threads 20 -Ob -o $out.phased.bcf `for i in {1..14}; do echo $outdir/$i.phased.vcf.gz;done` && bcftools index -f $out.phased.bcf
-    >$out.r2
-    for i in {1..14};do
-        cat $outdir/$i.BEAGLE.GL.r2 >>$out.r2
-    done
+    bcftools concat --threads 10 -Ob -o $out.bcf `for i in $chrs; do echo $outdir/$i.vcf.gz;done` && bcftools index -f $out.bcf
+    bcftools concat --threads 10 `for i in $chrs; do echo $outdir/$i.phased.vcf.gz;done` | bcftools annotate -I +'%CHROM:%POS' -Ob -o $out.phased.bcf --threads 10  && bcftools index -f $out.phased.bcf
+    for i in $chrs;do
+        cat $outdir/$i.BEAGLE.GL.r2 
+    done >$out.r2
+
     echo "beagle3 imputation done"
 }
 

@@ -183,6 +183,7 @@ def main():
 
     f, ax = plt.subplots(figsize=(6, 6), facecolor="w", edgecolor="k")
     if args.csv:
+
         import pandas as pd
 
         d = pd.read_csv(sys.stdin, header=0, names=["o", "e"])
