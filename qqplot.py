@@ -175,6 +175,13 @@ def main():
         dest="csv",
         help="read csv (two columns) from stdin. [%(default)s]",
     )
+    parser.add_argument(
+        "-no",
+        default=False,
+        action="store_true",
+        dest="no",
+        help="no grouping. [%(default)s]",
+    )
     parser.add_argument("-out", metavar="FILE", help="prefix of output files")
     parser.add_argument("-title", metavar="STRING", help="title of the plot")
     args = parser.parse_args()
@@ -191,6 +198,17 @@ def main():
             x=d["o"].values,
             y=d["e"].values,
             figname=args.out + ".png",
+            title=args.title,
+            ax=ax,
+        )
+    elif args.no:
+        o = list(map(float, filter(None, (row.rstrip() for row in sys.stdin))))
+        qq(
+            x = o,
+            figname=args.out + ".png",
+            cutoff=args.cutoff,
+            bins=args.bins,
+            title=args.title,
             ax=ax,
         )
     else:
