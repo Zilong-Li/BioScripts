@@ -34,6 +34,10 @@ qq(x=p, figname="test.png")
 
 [[file:image/qqplot.png]]
 
+* [[file:downsample.sh][downsampling bam files]]
+#+begin_src shell
+bash downsample.sh
+#+end_src
 * [[file:fixref.py][fixref]]
 
 Before running =bcftools merge=, you maybe need to fix the ref and alt and corresponding genotypes, otherwise =bcftools= will surprise you.
