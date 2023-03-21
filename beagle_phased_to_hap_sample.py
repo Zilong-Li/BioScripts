@@ -3,6 +3,7 @@ import sys
 import gzip
 import argparse
 
+
 def _parse_sites(theBeagleSitesFile):
 
     d = {}
@@ -15,9 +16,9 @@ def _parse_sites(theBeagleSitesFile):
 
 
 def _output_sample_file(header, theOutPrefix):
-    '''
+    """
     header of phased.gz: I id sample1 sample2 ...
-    '''
+    """
 
     samples = header.rstrip().split()[2:]
     out = open(f"{theOutPrefix}.samples", "w")
@@ -28,12 +29,12 @@ def _output_sample_file(header, theOutPrefix):
 
 
 def run(theChr, theBeaglePhasedFile, theBeagleSitesFile, theOutPrefix):
-    '''
+    """
     output: hap.gz/samples format of shapeit2 but coustomized for bcftools convert
     see:
         http://www.htslib.org/doc/1.1/bcftools.html#convert
         https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html#hapsample
-    '''
+    """
 
     sites = _parse_sites(theBeagleSitesFile)
 
@@ -49,31 +50,31 @@ def run(theChr, theBeaglePhasedFile, theBeagleSitesFile, theOutPrefix):
                 tmp = row.rstrip().split()
                 snp = tmp[1]
                 if sites.get(snp):
-                    d = {sites[snp][1]: '0', sites[snp][2]: '1'}
+                    d = {sites[snp][1]: "0", sites[snp][2]: "1"}
                     gts = [d[g] for g in tmp[2:]]
-                    out.write(f"{theChr}:{sites[snp][0]}_{sites[snp][1]}_{sites[snp][2]} {snp} {sites[snp][0]} {sites[snp][1]} {sites[snp][2]} {' '.join(gts)}\n")
+                    out.write(
+                        f"{theChr}:{sites[snp][0]}_{sites[snp][1]}_{sites[snp][2]} {snp} {sites[snp][0]} {sites[snp][1]} {sites[snp][2]} {' '.join(gts)}\n"
+                    )
                 else:
                     sys.stderr.write("the sites file doesn't match the phased file!")
                     sys.exit(1)
 
 
-
 def main():
 
     parser = argparse.ArgumentParser(
-        description="convert phased.gz file output by beagle v3.3 to hap/sample file\n")
-    parser.add_argument("chr", metavar="STRING",
-                        help="chromosome to use")
-    parser.add_argument("phased", metavar="phased.gz",
-                        help="phased.gz file by beagle v3")
-    parser.add_argument("sites", metavar="sites",
-                        help="sites file by beagle v3")
-    parser.add_argument("out", metavar="OUT",
-                        help="output prefix")
+        description="convert phased.gz file output by beagle v3.3 to hap/sample file\n"
+    )
+    parser.add_argument("chr", metavar="STRING", help="chromosome to use")
+    parser.add_argument(
+        "phased", metavar="phased.gz", help="phased.gz file by beagle v3"
+    )
+    parser.add_argument("sites", metavar="sites", help="sites file by beagle v3")
+    parser.add_argument("out", metavar="OUT", help="output prefix")
     args = parser.parse_args()
 
     run(args.chr, args.phased, args.sites, args.out)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
