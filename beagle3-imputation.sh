@@ -30,44 +30,54 @@ runBeagle3() {
             ${bcftools} view -r $chrom -q $MAF:minor -O u $VCF |
                 ${bcftools} +tag2tag -Ov -o ${bname}.vcf -- -r --pl-to-gl &&
                 ${vcftools} --vcf ${bname}.vcf --out ${bname} --BEAGLE-GL --chr $chrom &&
-                rm -f ${bname}.vcf && echo 'convert to BEAGLE-GL done'
+                rm -f ${bname}.vcf && echo "convert to BEAGLE-GL done -- ${chrom}"
             # run imputation
             outdir=$OUT/imputed
             mkdir -p $outdir
-            out=$outdir/$chrom
+            outpre=$outdir/$chrom
             input=${bname}.BEAGLE.GL
-            java -Xss5m -Xmx20g -Djava.io.tmpdir=$outdir -jar $beagle3 like=$input omitprefix=true out=$out
-            zcat $out.BEAGLE.GL.gprobs.gz |
+            # the output of beagle3 is [output prefix].[input].[ext]
+            java -Xss5m -Xmx20g -Djava.io.tmpdir=$outdir -jar $beagle3 like=$input out=$outpre
+            out=$outpre.$(basename $input)
+            zcat $out.gprobs.gz |
                 java -jar ${gprobs2beagle} 0.9 -1 |
-                gzip -c >$out.bgl.gz &&
-                zcat $out.BEAGLE.GL.gprobs.gz |
-                awk 'NR>1{split($1,a,":");print $1,a[2],$2,$3}' >$out.bgl.sites &&
-                java -jar ${beagle2vcf} $chrom $out.bgl.sites $out.bgl.gz -1 | bgzip -c >$out.vcf.gz &&
+                gzip -c >$out.bgl.gz
+            zcat $out.gprobs.gz |
+                awk 'NR>1{split($1,a,":");print $1,a[2],$2,$3}' >$out.bgl.sites
+            java -jar ${beagle2vcf} $chrom $out.bgl.sites $out.bgl.gz -1 | bgzip -c >$out.vcf.gz &&
                 ${bcftools} index -f $out.vcf.gz &&
-                python3 ${gtdiscord} -chr $chrom $VCF $out.vcf.gz $out.sum.disc.count &&
-                echo "convert to vcf done"
+                echo "convert to imputed vcf done -- ${chrom}"
             ### convert phased.gz to hap then to vcf
-            python3 ${beagle2hap} $chrom $out.BEAGLE.GL.phased.gz $out.bgl.sites $out &&
+            python3 ${beagle2hap} $chrom $out.phased.gz $out.bgl.sites $out &&
                 ${bcftools} convert --hapsample2vcf $out |
                 ${bcftools} annotate -I +'%CHROM:%POS' -Oz -o $out.phased.vcf.gz &&
-                ${bcftools} index -f $out.phased.vcf.gz
-            echo "$chrom done"
+                ${bcftools} index -f $out.phased.vcf.gz &&
+                echo "convert to phased vcf done -- ${chrom}"
+            echo "calculate genotype disconcordance and plotting"
+            python3 ${gtdiscord} -chr $chrom $VCF $out.vcf.gz $out.sum.disc.count
         } &
     done
     wait
 
     echo "all jobs done by chroms"
     echo "start concating files"
+    out=$OUT/imputed/all
+    prefixfile=$out.output.prefix
+    for chrom in $chrs; do
+        outpre=$OUT/imputed/$chrom
+        echo $outpre.$(basename $VCF).$chrom.BEAGLE.GL
+    done >$prefixfile
 
-    out=$outdir/all
-    ${bcftools} concat --threads 10 -Ob -o $out.bcf $(for i in $chrs; do echo $outdir/$i.vcf.gz; done) &&
-        ${bcftools} index -f $out.bcf
-    ${bcftools} concat --threads 10 $(for i in $chrs; do echo $outdir/$i.phased.vcf.gz; done) |
-        ${bcftools} annotate -I +'%CHROM:%POS' -Ob -o $out.phased.bcf --threads 10 &&
-        ${bcftools} index -f $out.phased.bcf
-    for i in $chrs; do
-        cat $outdir/$i.BEAGLE.GL.r2
-    done >$out.r2
+    ${bcftools} concat --threads 10 -Oz -o $out.imputed.vcf.gz $(for i in $(cat $prefixfile); do echo $i.vcf.gz; done) &&
+        ${bcftools} index -f $out.imputed.vcf.gz
+    ${bcftools} concat --threads 10 $(for i in $(cat $prefixfile); do echo $i.phased.vcf.gz; done) |
+        ${bcftools} annotate -I +'%CHROM:%POS' -Oz -o $out.phased.vcf.gz --threads 10 &&
+        ${bcftools} index -f $out.phased.vcf.gz
+
+    cat $prefixfile | xargs -I {} cat "{}.r2" | gzip -c >$out.r2.gz
+    ${bcftools} +fill-tags $out.imputed.vcf.gz -- -t MAF |bcftools query -f "%ID\t%MAF\n" | gzip -c >$out.maf.gz
+    echo -e "ID\tR2\tMAF" >$out.stats
+    paste <(zcat $out.r2.gz) <(zcat $out.maf.gz | cut -f2) >> $out.stats
 
     echo "beagle3 imputation done"
 }

@@ -53,7 +53,7 @@ def run(theChr, theBeaglePhasedFile, theBeagleSitesFile, theOutPrefix):
                     d = {sites[snp][1]: "0", sites[snp][2]: "1"}
                     gts = [d[g] for g in tmp[2:]]
                     out.write(
-                        f"{theChr}:{sites[snp][0]}_{sites[snp][1]}_{sites[snp][2]} {snp} {sites[snp][0]} {sites[snp][1]} {sites[snp][2]} {' '.join(gts)}\n"
+                        f"{theChr}:{sites[snp][0]}_{sites[snp][1]}_{sites[snp][2]} {theChr}:{sites[snp][0]}_{sites[snp][1]}_{sites[snp][2]} {sites[snp][0]} {sites[snp][1]} {sites[snp][2]} {' '.join(gts)}\n"
                     )
                 else:
                     sys.stderr.write("the sites file doesn't match the phased file!")
