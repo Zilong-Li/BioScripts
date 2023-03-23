@@ -1,5 +1,16 @@
 #+TITLE: Cool Bioinformatics Scripts
 
+* Table of Content :TOC:QUOTE:
+#+BEGIN_QUOTE
+- [[#qqplot][qqplot]]
+- [[#downsampling-bam-files][downsampling bam files]]
+- [[#genotype-refinement-using-beagle-3][genotype refinement using beagle 3]]
+- [[#calculate-genotype-discordance][calculate genotype discordance]]
+- [[#r2-vs-maf-plot][R2 vs MAF plot]]
+- [[#phylogenetic-tree][Phylogenetic Tree]]
+- [[#fixref][fixref]]
+#+END_QUOTE
+
 * [[file:qqplot.py][qqplot]]
 You can use make a QQ plot in the following ways.
 
@@ -35,15 +46,21 @@ qq(x=p, figname="test.png")
 [[file:image/qqplot.png]]
 
 * [[file:downsample.sh][downsampling bam files]]
+
 #+begin_src shell
-bash downsample.sh
+Usage: downsample.sh [-b <bamlist>] [-d <depth>] [-n <cores>] [-o <outdir>]
 #+end_src
-* [[file:fixref.py][fixref]]
 
-Before running =bcftools merge=, you maybe need to fix the ref and alt and corresponding genotypes, otherwise =bcftools= will surprise you.
+* [[file:beagle3-imputation.sh][genotype refinement using beagle 3]]
 
 #+begin_src shell
-usage: fixref.py [-h] REF_VCF IN_VCF OUT_VCF
+Usage: beagle3-imputation.sh [options]
+Pipeline of genotype refinement for median depth sequencing data using beagle3
+
+-h,          Display help
+-i,          Input VCF/BCF file
+-o,          Output folder
+-f,          MAF filters before imputation
 #+end_src
 
 * [[file:calc_imputed_gt_discord.py][calculate genotype discordance]]
@@ -67,3 +84,10 @@ plot INFO/R2 after imputation by =BEAGLE= etc.
 * [[file:njtree.R][Phylogenetic Tree]]
 
 [[file:image/njtree-circular.png]]
+* [[file:fixref.py][fixref]]
+
+Before running =bcftools merge=, you maybe need to fix the ref and alt and corresponding genotypes, otherwise =bcftools= will surprise you.
+
+#+begin_src shell
+usage: fixref.py [-h] REF_VCF IN_VCF OUT_VCF
+#+end_src
