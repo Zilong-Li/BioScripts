@@ -10,15 +10,23 @@ library(genio)
 #  mat: 2 x ninds x nsites
 
 
-convert.phase.plink <- function(phasefiles) {
+convert.phase.plink <- function(phasefiles, output) {
+  if(is.null(names(phasefiles))) names(phasefiles) <- 1:length(phasefiles)
   for(chr in names(phasefiles)){
+    print(phasefiles[chr])
     phase <- readLines(phasefiles[chr])
     nind <- as.integer(phase[2])
     nsites <- as.integer(phase[3])
-    pos <- as.integer(unlist(strsplit(phase[4], split = " "))[-1])
+    pos <- unlist(strsplit(phase[4], split = " "))
+    i <- match("P", pos)
+    if(is.na(i))
+      pos <- as.integer(pos)
+    else
+      pos <- as.integer(pos[-1])
     mat <- phase[6:length(phase)]
 
     gt <- as.integer(unlist(strsplit(mat[1], split="")))
+    stopifnot(length(pos)== nsites)
     stopifnot(length(pos)==length(gt))
 
     bim <- make_bim( n = nsites )
@@ -32,11 +40,13 @@ convert.phase.plink <- function(phasefiles) {
     })
 
     G <- G[, seq(1, ncol(G), 2)] + G[, seq(2, ncol(G), 2)]
-    fileplink <- paste0("example.", chr)
+    fileplink <- paste0(output, ".", chr)
     o <- write_plink(fileplink, G, bim, fam, verbose = FALSE)
   }
 }
 
 phasefiles <- c("chr1"= "data/example.phase", "chr2"="data/example.phase")
 
-convert.phase.plink(phasefiles)
+convert.phase.plink(phasefiles, "sim")
+
+
